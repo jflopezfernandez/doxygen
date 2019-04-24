@@ -485,17 +485,17 @@ static void addSTLClasses(Entry *root) {
         // add template arguments to class
         if (info->templType1) {
             ArgumentList *al = new ArgumentList;
-            Argument *a=new Argument;
-            a->type="typename";
-            a->name=info->templType1;
+            Argument *a = new Argument;
+            a->type = "typename";
+            a->name = info->templType1;
             al->append(a);
 
             // another template argument
             if (info->templType2) {
             
                 a=new Argument;
-                a->type="typename";
-                a->name=info->templType2;
+                a->type = "typename";
+                a->name = info->templType2;
                 al->append(a);
             }
 
@@ -506,108 +506,105 @@ static void addSTLClasses(Entry *root) {
         
     // add member variables
     if (info->templName1) {
-      addSTLMember(classEntry,info->templType1,info->templName1);
+        addSTLMember(classEntry,info->templType1, info->templName1);
     }
 
     if (info->templName2) {
-      addSTLMember(classEntry,info->templType2,info->templName2);
+        addSTLMember(classEntry,info->templType2, info->templName2);
     }
 
     if (fullName=="std::smart_ptr" || fullName=="std::shared_ptr" || fullName=="std::unique_ptr" || fullName=="std::weak_ptr") {
-      Entry *memEntry = new Entry;
-      memEntry->name       = "operator->";
-      memEntry->args       = "()";
-      memEntry->type       = "T*";
-      memEntry->protection = Public;
-      memEntry->section    = Entry::FUNCTION_SEC;
-      memEntry->brief      = "STL member";
-      memEntry->hidden     = FALSE;
-      memEntry->artificial = FALSE;
-      classEntry->addSubEntry(memEntry);
-      //EntryNav *memEntryNav = new EntryNav(classEntryNav,memEntry);
-      //memEntryNav->setEntry(memEntry);
-      //classEntryNav->addChild(memEntryNav);
+        Entry *memEntry = new Entry;
+        memEntry->name       = "operator->";
+        memEntry->args       = "()";
+        memEntry->type       = "T*";
+        memEntry->protection = Public;
+        memEntry->section    = Entry::FUNCTION_SEC;
+        memEntry->brief      = "STL member";
+        memEntry->hidden     = FALSE;
+        memEntry->artificial = FALSE;
+        classEntry->addSubEntry(memEntry);
+        //EntryNav *memEntryNav = new EntryNav(classEntryNav,memEntry);
+        //memEntryNav->setEntry(memEntry);
+        //classEntryNav->addChild(memEntryNav);
     }
-    if (info->baseClass1)
-    {
+
+    if (info->baseClass1) {
       classEntry->extends->append(new BaseInfo(info->baseClass1,Public,info->virtualInheritance?Virtual:Normal));
     }
-    if (info->baseClass2)
-    {
+
+    if (info->baseClass2) {
       classEntry->extends->append(new BaseInfo(info->baseClass2,Public,info->virtualInheritance?Virtual:Normal));
     }
-    if (info->iterators)
-    {
-      // add iterator class
-      addSTLIterator(classEntry,fullName+"::iterator");
-      addSTLIterator(classEntry,fullName+"::const_iterator");
-      addSTLIterator(classEntry,fullName+"::reverse_iterator");
-      addSTLIterator(classEntry,fullName+"::const_reverse_iterator");
+
+    if (info->iterators) {
+        // add iterator class
+        addSTLIterator(classEntry,fullName+"::iterator");
+        addSTLIterator(classEntry,fullName+"::const_iterator");
+        addSTLIterator(classEntry,fullName+"::reverse_iterator");
+        addSTLIterator(classEntry,fullName+"::const_reverse_iterator");
     }
+
     info++;
   }
 }
 
 //----------------------------------------------------------------------------
 
-static Definition *findScopeFromQualifiedName(Definition *startScope,const QCString &n,
-                                              FileDef *fileScope,TagInfo *tagInfo);
+static Definition* findScopeFromQualifiedName(Definition *startScope,const QCString &n, FileDef *fileScope,TagInfo *tagInfo);
 
-static void addPageToContext(PageDef *pd,Entry *root)
-{
-  if (root->parent()) // add the page to it's scope
-  {
-    QCString scope = root->parent()->name;
-    if (root->parent()->section==Entry::PACKAGEDOC_SEC)
-    {
-      scope=substitute(scope,".","::");
+static void addPageToContext(PageDef* pd, Entry* root) {
+    if (root->parent()) { // add the page to it's scope
+        QCString scope = root->parent()->name;
+
+        if (root->parent()->section == Entry::PACKAGEDOC_SEC) {
+            scope = substitute(scope, ".", "::");
+        }
+
+        scope = stripAnonymousNamespaceScope(scope);
+        scope += "::" + pd->name();
+        
+        Definition* d = findScopeFromQualifiedName(Doxygen::globalScope, scope, 0, root->tagInfo);
+        
+        if (d) {
+            pd->setPageScope(d);
+        }
     }
-    scope = stripAnonymousNamespaceScope(scope);
-    scope+="::"+pd->name();
-    Definition *d = findScopeFromQualifiedName(Doxygen::globalScope,scope,0,root->tagInfo);
-    if (d)
-    {
-      pd->setPageScope(d);
-    }
-  }
 }
 
-static void addRelatedPage(Entry *root)
-{
-  GroupDef *gd=0;
-  QListIterator<Grouping> gli(*root->groups);
-  Grouping *g;
-  for (;(g=gli.current());++gli)
-  {
-    if (!g->groupname.isEmpty() && (gd=Doxygen::groupSDict->find(g->groupname))) break;
-  }
-  //printf("---> addRelatedPage() %s gd=%p\n",root->name.data(),gd);
-  QCString doc;
-  if (root->brief.isEmpty())
-  {
-    doc=root->doc+root->inbodyDocs;
-  }
-  else
-  {
-    doc=root->brief+"\n\n"+root->doc+root->inbodyDocs;
-  }
-  PageDef *pd = addRelatedPage(root->name,root->args,doc,root->anchors,
-      root->docFile,root->docLine,
-      root->sli,
-      gd,root->tagInfo,
-      root->lang
-     );
-  if (pd)
-  {
-    pd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
-    pd->addSectionsToDefinition(root->anchors);
-    pd->setLocalToc(root->localToc);
-    addPageToContext(pd,root);
-  }
+static void addRelatedPage(Entry* root) {
+    GroupDef* gd = nullptr;
+    Grouping *g = nullptr;
+
+    QListIterator<Grouping> gli(*root->groups);
+
+    for ( ; (g=gli.current()); ++gli) {
+        if (!g->groupname.isEmpty() && (gd=Doxygen::groupSDict->find(g->groupname))) {
+            break;
+        }
+    }
+
+    //printf("---> addRelatedPage() %s gd=%p\n",root->name.data(),gd);
+
+    QCString doc;
+
+    if (root->brief.isEmpty()) {
+        doc = root->doc + root->inbodyDocs;
+    } else {
+        doc = root->brief + "\n\n" + root->doc + root->inbodyDocs;
+    }
+
+    PageDef* pd = addRelatedPage(root->name, root->args, doc, root->anchors, root->docFile,root->docLine, root->sli, gd,root->tagInfo, root->lang);
+    
+    if (pd) {
+        pd->setBriefDescription(root->brief,root->briefFile,root->briefLine);
+        pd->addSectionsToDefinition(root->anchors);
+        pd->setLocalToc(root->localToc);
+        addPageToContext(pd,root);
+    }
 }
 
-static void buildGroupListFiltered(Entry *root,bool additional, bool includeExternal)
-{
+static void buildGroupListFiltered(Entry *root,bool additional, bool includeExternal) {
   if (root->section==Entry::GROUPDOC_SEC && !root->name.isEmpty() &&
         ((!includeExternal && root->tagInfo==0) ||
          ( includeExternal && root->tagInfo!=0))
@@ -616,12 +613,12 @@ static void buildGroupListFiltered(Entry *root,bool additional, bool includeExte
     if ((root->groupDocType==Entry::GROUPDOC_NORMAL && !additional) ||
         (root->groupDocType!=Entry::GROUPDOC_NORMAL &&  additional))
     {
-      GroupDef *gd = Doxygen::groupSDict->find(root->name);
+      GroupDef* gd = Doxygen::groupSDict->find(root->name);
+      
       //printf("Processing group '%s':'%s' add=%d ext=%d gd=%p\n",
       //    root->type.data(),root->name.data(),additional,includeExternal,gd);
 
-      if (gd)
-      {
+      if (gd) {
         if ( !gd->hasGroupTitle() )
         {
           gd->setGroupTitle( root->type );
