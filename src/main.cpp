@@ -1,3 +1,4 @@
+
 /******************************************************************************
  *
  *
@@ -14,7 +15,7 @@
  * Documents produced by Doxygen are derivative works derived from the
  * input used in their production; they are not affected by this license.
  *
- */
+ *  **************************************************************************/
 
 #include "doxygen.h"
 
@@ -28,14 +29,15 @@
  *  is to make it possible to write your own main, with a different
  *  generateOutput() function for instance.
  */
-int main(int argc,char **argv)
+int main(int argc,char *argv[])
 {
-  initDoxygen();
-  readConfiguration(argc,argv);
-  checkConfiguration();
-  adjustConfiguration();
-  parseInput();
-  generateOutput();
-  return 0;
+    initDoxygen();
+    readConfiguration(argc,argv);
+    checkConfiguration();
+    adjustConfiguration();
+    parseInput();
+    generateOutput();
+
+    return EXIT_SUCCESS;
 }
 
