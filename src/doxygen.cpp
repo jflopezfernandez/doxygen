@@ -127,55 +127,54 @@ MemberNameSDict* Doxygen::memberNameSDict = nullptr;
 MemberNameSDict* Doxygen::functionNameSDict = nullptr;
 FileNameList* Doxygen::inputNameList = nullptr;       // all input files
 FileNameDict* Doxygen::inputNameDict = nullptr;
-
-GroupSDict      *Doxygen::groupSDict = 0;
-FormulaList     *Doxygen::formulaList = 0;       // all formulas
-FormulaDict     *Doxygen::formulaDict = 0;       // all formulas
-FormulaDict     *Doxygen::formulaNameDict = 0;   // the label name of all formulas
-PageSDict       *Doxygen::pageSDict = 0;
-PageSDict       *Doxygen::exampleSDict = 0;
-SectionDict     *Doxygen::sectionDict = 0;        // all page sections
-CiteDict        *Doxygen::citeDict=0;              // database of bibliographic references
-StringDict       Doxygen::aliasDict(257);          // aliases
-QDict<void>      Doxygen::inputPaths(1009);
-FileNameDict    *Doxygen::includeNameDict = 0;     // include names
-FileNameDict    *Doxygen::exampleNameDict = 0;     // examples
-FileNameDict    *Doxygen::imageNameDict = 0;       // images
-FileNameDict    *Doxygen::dotFileNameDict = 0;     // dot files
-FileNameDict    *Doxygen::mscFileNameDict = 0;     // msc files
-FileNameDict    *Doxygen::diaFileNameDict = 0;     // dia files
-StringDict       Doxygen::namespaceAliasDict(257); // all namespace aliases
-StringDict       Doxygen::tagDestinationDict(257); // all tag locations
-QDict<void>      Doxygen::expandAsDefinedDict(257); // all macros that should be expanded
+GroupSDict* Doxygen::groupSDict = nullptr;
+FormulaList* Doxygen::formulaList = nullptr;       // all formulas
+FormulaDict* Doxygen::formulaDict = nullptr;       // all formulas
+FormulaDict* Doxygen::formulaNameDict = nullptr;   // the label name of all formulas
+PageSDict* Doxygen::pageSDict = nullptr;
+PageSDict* Doxygen::exampleSDict = nullptr;
+SectionDict* Doxygen::sectionDict = nullptr;        // all page sections
+CiteDict* Doxygen::citeDict = nullptr;              // database of bibliographic references
+StringDict Doxygen::aliasDict(257);          // aliases
+QDict<void> Doxygen::inputPaths(1009);
+FileNameDict* Doxygen::includeNameDict = nullptr;     // include names
+FileNameDict* Doxygen::exampleNameDict = nullptr;     // examples
+FileNameDict* Doxygen::imageNameDict = nullptr;       // images
+FileNameDict* Doxygen::dotFileNameDict = nullptr;     // dot files
+FileNameDict* Doxygen::mscFileNameDict = nullptr;     // msc files
+FileNameDict* Doxygen::diaFileNameDict = nullptr;     // dia files
+StringDict Doxygen::namespaceAliasDict(257); // all namespace aliases
+StringDict Doxygen::tagDestinationDict(257); // all tag locations
+QDict<void> Doxygen::expandAsDefinedDict(257); // all macros that should be expanded
 QIntDict<MemberGroupInfo> Doxygen::memGrpInfoDict(1009); // dictionary of the member groups heading
 PageDef* Doxygen::mainPage = nullptr;
 bool Doxygen::insideMainPage = false; // are we generating docs for the main page?
-NamespaceDef    *Doxygen::globalScope = 0;
-QDict<RefList>  *Doxygen::xrefLists = new QDict<RefList>; // dictionary of cross-referenced item lists
-bool             Doxygen::parseSourcesNeeded = false;
-QTime            Doxygen::runningTime;
+NamespaceDef* Doxygen::globalScope = nullptr;
+QDict<RefList>* Doxygen::xrefLists = new QDict<RefList>; // dictionary of cross-referenced item lists
+bool Doxygen::parseSourcesNeeded = false;
+QTime Doxygen::runningTime;
 SearchIndexIntf* Doxygen::searchIndex = nullptr;
 QDict<DefinitionIntf>* Doxygen::symbolMap = nullptr;
 QDict<Definition>* Doxygen::clangUsrMap = nullptr;
-bool             Doxygen::outputToWizard = false;
-QDict<int> *     Doxygen::htmlDirMap = 0;
+bool Doxygen::outputToWizard = false;
+QDict<int>* Doxygen::htmlDirMap = nullptr;
 QCache<LookupInfo> *Doxygen::lookupCache;
-DirSDict        *Doxygen::directories;
+DirSDict* Doxygen::directories;
 SDict<DirRelation> Doxygen::dirRelations(257);
-ParserManager   *Doxygen::parserManager = 0;
+ParserManager* Doxygen::parserManager = nullptr;
 QCString Doxygen::htmlFileExtension;
-bool             Doxygen::suppressDocWarnings = false;
-//Store           *Doxygen::symbolStorage;
-QCString         Doxygen::objDBFileName;
-QCString         Doxygen::entryDBFileName;
-QCString         Doxygen::filterDBFileName;
-bool             Doxygen::gatherDefines = true;
-IndexList       *Doxygen::indexList;
-int              Doxygen::subpageNestingLevel = 0;
-bool             Doxygen::userComments = false;
-QCString         Doxygen::spaces;
-bool             Doxygen::generatingXmlOutput = false;
-bool             Doxygen::markdownSupport = true;
+bool Doxygen::suppressDocWarnings = false;
+//Store* Doxygen::symbolStorage;
+QCString Doxygen::objDBFileName;
+QCString Doxygen::entryDBFileName;
+QCString Doxygen::filterDBFileName;
+bool Doxygen::gatherDefines = true;
+IndexList* Doxygen::indexList;
+int Doxygen::subpageNestingLevel = 0;
+bool Doxygen::userComments = false;
+QCString Doxygen::spaces;
+bool Doxygen::generatingXmlOutput = false;
+bool Doxygen::markdownSupport = true;
 GenericsSDict   *Doxygen::genericsDict;
 
 // locally accessible globals
@@ -216,127 +215,120 @@ void clearAll()
 }
 
 class Statistics {
+    struct stat {
+        const char *name;
+        double elapsed;
+
+        stat()
+            : name(nullptr), elapsed(0)
+        { }
+      
+        stat(const char *n, double el)
+            : name(n), elapsed(el)
+        { }
+    };
+    
+    QList<stat> stats;
+    QTime       time;
+
 public:
     Statistics() { stats.setAutoDelete(TRUE); }
     
-    void begin(const char *name)
-    {
-      msg(name);
-      stat *entry= new stat(name,0);
-      stats.append(entry);
-      time.restart();
+    void begin(const char *name) {
+        msg(name);
+        stat *entry= new stat(name,0);
+        stats.append(entry);
+        time.restart();
     }
-    void end()
-    {
+
+    void end() {
       stats.getLast()->elapsed=((double)time.elapsed())/1000.0;
     }
-    void print()
-    {
-      bool restore=FALSE;
-      if (Debug::isFlagSet(Debug::Time))
-      {
-        Debug::clearFlag("time");
-        restore=TRUE;
-      }
-      msg("----------------------\n");
-      QListIterator<stat> sli(stats);
-      stat *s;
-      for ( sli.toFirst(); (s=sli.current()); ++sli )
-      {
-        msg("Spent %.3f seconds in %s",s->elapsed,s->name);
-      }
-      if (restore) Debug::setFlag("time");
+
+    void print() {
+        bool restore=FALSE;
+      
+        if (Debug::isFlagSet(Debug::Time)) {
+            Debug::clearFlag("time");
+            restore=TRUE;
+        }
+        
+        msg("----------------------\n");
+        QListIterator<stat> sli(stats);
+        stat *s;
+        
+        for ( sli.toFirst(); (s=sli.current()); ++sli ) {
+            msg("Spent %.3f seconds in %s",s->elapsed,s->name);
+        }
+
+        if (restore) {
+            Debug::setFlag("time");
+        }
     }
-  private:
-    struct stat
-    {
-      const char *name;
-      double elapsed;
-      stat() : name(NULL),elapsed(0) {}
-      stat(const char *n, double el) : name(n),elapsed(el) {}
-    };
-    QList<stat> stats;
-    QTime       time;
 } g_s;
 
 
-void statistics()
-{
-  fprintf(stderr,"--- inputNameDict stats ----\n");
-  Doxygen::inputNameDict->statistics();
-  fprintf(stderr,"--- includeNameDict stats ----\n");
-  Doxygen::includeNameDict->statistics();
-  fprintf(stderr,"--- exampleNameDict stats ----\n");
-  Doxygen::exampleNameDict->statistics();
-  fprintf(stderr,"--- imageNameDict stats ----\n");
-  Doxygen::imageNameDict->statistics();
-  fprintf(stderr,"--- dotFileNameDict stats ----\n");
-  Doxygen::dotFileNameDict->statistics();
-  fprintf(stderr,"--- mscFileNameDict stats ----\n");
-  Doxygen::mscFileNameDict->statistics();
-  fprintf(stderr,"--- diaFileNameDict stats ----\n");
-  Doxygen::diaFileNameDict->statistics();
-  //fprintf(stderr,"--- g_excludeNameDict stats ----\n");
-  //g_excludeNameDict.statistics();
-  fprintf(stderr,"--- aliasDict stats ----\n");
-  Doxygen::aliasDict.statistics();
-  fprintf(stderr,"--- typedefDict stats ----\n");
-  fprintf(stderr,"--- namespaceAliasDict stats ----\n");
-  Doxygen::namespaceAliasDict.statistics();
-  fprintf(stderr,"--- formulaDict stats ----\n");
-  Doxygen::formulaDict->statistics();
-  fprintf(stderr,"--- formulaNameDict stats ----\n");
-  Doxygen::formulaNameDict->statistics();
-  fprintf(stderr,"--- tagDestinationDict stats ----\n");
-  Doxygen::tagDestinationDict.statistics();
-  fprintf(stderr,"--- g_compoundKeywordDict stats ----\n");
-  g_compoundKeywordDict.statistics();
-  fprintf(stderr,"--- expandAsDefinedDict stats ----\n");
-  Doxygen::expandAsDefinedDict.statistics();
-  fprintf(stderr,"--- memGrpInfoDict stats ----\n");
-  Doxygen::memGrpInfoDict.statistics();
+void statistics() {
+    fprintf(stderr,"--- inputNameDict stats ----\n");
+    Doxygen::inputNameDict->statistics();
+    fprintf(stderr,"--- includeNameDict stats ----\n");
+    Doxygen::includeNameDict->statistics();
+    fprintf(stderr,"--- exampleNameDict stats ----\n");
+    Doxygen::exampleNameDict->statistics();
+    fprintf(stderr,"--- imageNameDict stats ----\n");
+    Doxygen::imageNameDict->statistics();
+    fprintf(stderr,"--- dotFileNameDict stats ----\n");
+    Doxygen::dotFileNameDict->statistics();
+    fprintf(stderr,"--- mscFileNameDict stats ----\n");
+    Doxygen::mscFileNameDict->statistics();
+    fprintf(stderr,"--- diaFileNameDict stats ----\n");
+    Doxygen::diaFileNameDict->statistics();
+    //fprintf(stderr,"--- g_excludeNameDict stats ----\n");
+    //g_excludeNameDict.statistics();
+    fprintf(stderr,"--- aliasDict stats ----\n");
+    Doxygen::aliasDict.statistics();
+    fprintf(stderr,"--- typedefDict stats ----\n");
+    fprintf(stderr,"--- namespaceAliasDict stats ----\n");
+    Doxygen::namespaceAliasDict.statistics();
+    fprintf(stderr,"--- formulaDict stats ----\n");
+    Doxygen::formulaDict->statistics();
+    fprintf(stderr,"--- formulaNameDict stats ----\n");
+    Doxygen::formulaNameDict->statistics();
+    fprintf(stderr,"--- tagDestinationDict stats ----\n");
+    Doxygen::tagDestinationDict.statistics();
+    fprintf(stderr,"--- g_compoundKeywordDict stats ----\n");
+    g_compoundKeywordDict.statistics();
+    fprintf(stderr,"--- expandAsDefinedDict stats ----\n");
+    Doxygen::expandAsDefinedDict.statistics();
+    fprintf(stderr,"--- memGrpInfoDict stats ----\n");
+    Doxygen::memGrpInfoDict.statistics();
 }
 
+static void addMemberDocs(Entry *root,MemberDef *md, const char *funcDecl, ArgumentList *al,bool over_load,NamespaceSDict *nl=0);
 
+static void findMember(Entry *root, QCString funcDecl, bool overloaded, bool isFunc);
 
-static void addMemberDocs(Entry *root,MemberDef *md, const char *funcDecl,
-                   ArgumentList *al,bool over_load,NamespaceSDict *nl=0);
-static void findMember(Entry *root,
-                       QCString funcDecl,
-                       bool overloaded,
-                       bool isFunc
-                      );
-
-enum FindBaseClassRelation_Mode
-{
+enum FindBaseClassRelation_Mode {
   TemplateInstances,
   DocumentedOnly,
   Undocumented
 };
 
-static bool findClassRelation(
-                           Entry *root,
-                           Definition *context,
-                           ClassDef *cd,
-                           BaseInfo *bi,
-                           QDict<int> *templateNames,
-                           /*bool insertUndocumented*/
-                           FindBaseClassRelation_Mode mode,
-                           bool isArtificial
-                          );
+static bool findClassRelation(Entry *root, Definition *context, ClassDef *cd, BaseInfo *bi, QDict<int> *templateNames, /*bool insertUndocumented,*/
+    FindBaseClassRelation_Mode mode, bool isArtificial);
 
 /** A struct contained the data for an STL class */
-struct STLInfo
-{
-  const char *className;
-  const char *baseClass1;
-  const char *baseClass2;
-  const char *templType1;
-  const char *templName1;
-  const char *templType2;
-  const char *templName2;
-  bool virtualInheritance;
-  bool iterators;
+struct STLInfo {
+    const char *className;
+    const char *baseClass1;
+    const char *baseClass2;
+    const char *templType1;
+    const char *templName1;
+    const char *templType2;
+    const char *templName2;
+    
+    bool virtualInheritance;
+    bool iterators;
 };
 
 static STLInfo g_stlinfo[] =
@@ -422,108 +414,106 @@ static STLInfo g_stlinfo[] =
   { 0,                      0,                              0,                     0,             0,             0,            0,             FALSE,              FALSE }
 };
 
-static void addSTLMember(Entry *root,const char *type,const char *name)
-{
-  Entry *memEntry = new Entry;
-  memEntry->name       = name;
-  memEntry->type       = type;
-  memEntry->protection = Public;
-  memEntry->section    = Entry::VARIABLE_SEC;
-  memEntry->brief      = "STL member";
-  memEntry->hidden     = FALSE;
-  memEntry->artificial = TRUE;
-  //memEntry->parent     = root;
-  root->addSubEntry(memEntry);
-  //EntryNav *memEntryNav = new EntryNav(root,memEntry);
-  //memEntryNav->setEntry(memEntry);
-  //rootNav->addChild(memEntryNav);
+static void addSTLMember(Entry *root,const char *type,const char *name) {
+    Entry *memEntry = new Entry;
+    memEntry->name       = name;
+    memEntry->type       = type;
+    memEntry->protection = Public;
+    memEntry->section    = Entry::VARIABLE_SEC;
+    memEntry->brief      = "STL member";
+    memEntry->hidden     = FALSE;
+    memEntry->artificial = TRUE;
+    //memEntry->parent     = root;
+    root->addSubEntry(memEntry);
+    //EntryNav *memEntryNav = new EntryNav(root,memEntry);
+    //memEntryNav->setEntry(memEntry);
+    //rootNav->addChild(memEntryNav);
 }
 
-static void addSTLIterator(Entry *classEntry,const char *name)
-{
-  Entry *iteratorClassEntry = new Entry;
-  iteratorClassEntry->fileName  = "[STL]";
-  iteratorClassEntry->startLine = 1;
-  iteratorClassEntry->name      = name;
-  iteratorClassEntry->section   = Entry::CLASS_SEC;
-  iteratorClassEntry->brief     = "STL iterator class";
-  iteratorClassEntry->hidden    = FALSE;
-  iteratorClassEntry->artificial= TRUE;
-  classEntry->addSubEntry(iteratorClassEntry);
-  //EntryNav *iteratorClassEntryNav = new EntryNav(classEntryNav,iteratorClassEntry);
-  //iteratorClassEntryNav->setEntry(iteratorClassEntry);
-  //classEntryNav->addChild(iteratorClassEntryNav);
+static void addSTLIterator(Entry *classEntry,const char *name) {
+    Entry *iteratorClassEntry = new Entry;
+    iteratorClassEntry->fileName  = "[STL]";
+    iteratorClassEntry->startLine = 1;
+    iteratorClassEntry->name      = name;
+    iteratorClassEntry->section   = Entry::CLASS_SEC;
+    iteratorClassEntry->brief     = "STL iterator class";
+    iteratorClassEntry->hidden    = FALSE;
+    iteratorClassEntry->artificial= TRUE;
+    classEntry->addSubEntry(iteratorClassEntry);
+    //EntryNav *iteratorClassEntryNav = new EntryNav(classEntryNav,iteratorClassEntry);
+    //iteratorClassEntryNav->setEntry(iteratorClassEntry);
+    //classEntryNav->addChild(iteratorClassEntryNav);
 }
 
 
-static void addSTLClasses(Entry *root)
-{
-  Entry *namespaceEntry = new Entry;
-  namespaceEntry->fileName  = "[STL]";
-  namespaceEntry->startLine = 1;
-  //namespaceEntry->parent    = rootNav->entry();
-  namespaceEntry->name      = "std";
-  namespaceEntry->section   = Entry::NAMESPACE_SEC;
-  namespaceEntry->brief     = "STL namespace";
-  namespaceEntry->hidden    = FALSE;
-  namespaceEntry->artificial= TRUE;
-  root->addSubEntry(namespaceEntry);
-  //EntryNav *namespaceEntryNav = new EntryNav(rootNav,namespaceEntry);
-  //namespaceEntryNav->setEntry(namespaceEntry);
-  //rootNav->addChild(namespaceEntryNav);
+static void addSTLClasses(Entry *root) {
+    Entry *namespaceEntry = new Entry;
+    namespaceEntry->fileName  = "[STL]";
+    namespaceEntry->startLine = 1;
+    //namespaceEntry->parent    = rootNav->entry();
+    namespaceEntry->name      = "std";
+    namespaceEntry->section   = Entry::NAMESPACE_SEC;
+    namespaceEntry->brief     = "STL namespace";
+    namespaceEntry->hidden    = FALSE;
+    namespaceEntry->artificial= TRUE;
+    root->addSubEntry(namespaceEntry);
+    //EntryNav *namespaceEntryNav = new EntryNav(rootNav,namespaceEntry);
+    //namespaceEntryNav->setEntry(namespaceEntry);
+    //rootNav->addChild(namespaceEntryNav);
 
-  STLInfo *info = g_stlinfo;
-  while (info->className)
-  {
-    //printf("Adding STL class %s\n",info->className);
-    QCString fullName = info->className;
-    fullName.prepend("std::");
+    STLInfo *info = g_stlinfo;
 
-    // add fake Entry for the class
-    Entry *classEntry = new Entry;
-    classEntry->fileName  = "[STL]";
-    classEntry->startLine = 1;
-    classEntry->name      = fullName;
-    classEntry->section   = Entry::CLASS_SEC;
-    classEntry->brief     = "STL class";
-    classEntry->hidden    = FALSE;
-    classEntry->artificial= TRUE;
-    namespaceEntry->addSubEntry(classEntry);
-    //EntryNav *classEntryNav = new EntryNav(namespaceEntryNav,classEntry);
-    //classEntryNav->setEntry(classEntry);
-    //namespaceEntryNav->addChild(classEntryNav);
+    while (info->className) {
+        //printf("Adding STL class %s\n",info->className);
+        QCString fullName = info->className;
+        fullName.prepend("std::");
 
-    // add template arguments to class
-    if (info->templType1)
-    {
-      ArgumentList *al = new ArgumentList;
-      Argument *a=new Argument;
-      a->type="typename";
-      a->name=info->templType1;
-      al->append(a);
-      if (info->templType2) // another template argument
-      {
-        a=new Argument;
-        a->type="typename";
-        a->name=info->templType2;
-        al->append(a);
-      }
-      classEntry->tArgLists = new QList<ArgumentList>;
-      classEntry->tArgLists->setAutoDelete(TRUE);
-      classEntry->tArgLists->append(al);
-    }
+        // add fake Entry for the class
+        Entry *classEntry = new Entry;
+        classEntry->fileName  = "[STL]";
+        classEntry->startLine = 1;
+        classEntry->name      = fullName;
+        classEntry->section   = Entry::CLASS_SEC;
+        classEntry->brief     = "STL class";
+        classEntry->hidden    = FALSE;
+        classEntry->artificial= TRUE;
+        namespaceEntry->addSubEntry(classEntry);
+        //EntryNav *classEntryNav = new EntryNav(namespaceEntryNav,classEntry);
+        //classEntryNav->setEntry(classEntry);
+        //namespaceEntryNav->addChild(classEntryNav);
+
+        // add template arguments to class
+        if (info->templType1) {
+            ArgumentList *al = new ArgumentList;
+            Argument *a=new Argument;
+            a->type="typename";
+            a->name=info->templType1;
+            al->append(a);
+
+            // another template argument
+            if (info->templType2) {
+            
+                a=new Argument;
+                a->type="typename";
+                a->name=info->templType2;
+                al->append(a);
+            }
+
+            classEntry->tArgLists = new QList<ArgumentList>;
+            classEntry->tArgLists->setAutoDelete(TRUE);
+            classEntry->tArgLists->append(al);
+        }
+        
     // add member variables
-    if (info->templName1)
-    {
+    if (info->templName1) {
       addSTLMember(classEntry,info->templType1,info->templName1);
     }
-    if (info->templName2)
-    {
+
+    if (info->templName2) {
       addSTLMember(classEntry,info->templType2,info->templName2);
     }
-    if (fullName=="std::auto_ptr" || fullName=="std::smart_ptr" || fullName=="std::shared_ptr" ||
-        fullName=="std::unique_ptr" || fullName=="std::weak_ptr")
-    {
+
+    if (fullName=="std::smart_ptr" || fullName=="std::shared_ptr" || fullName=="std::unique_ptr" || fullName=="std::weak_ptr") {
       Entry *memEntry = new Entry;
       memEntry->name       = "operator->";
       memEntry->args       = "()";
