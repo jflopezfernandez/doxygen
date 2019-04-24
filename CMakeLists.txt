@@ -11,20 +11,23 @@
 # Documents produced by Doxygen are derivative works derived from the
 # input used in their production; they are not affected by this license.
 
-cmake_minimum_required(VERSION 3.1.3)
-project(doxygen)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1.3)
+PROJECT(doxygen)
 
-option(build_wizard    "Build the GUI frontend for doxygen." OFF)
-option(build_app       "Example showing how to embed doxygen in an application." OFF)
-option(build_parse     "Parses source code and dumps the dependencies between the code elements." OFF)
-option(build_xmlparser "Example showing how to parse doxygen's XML output." OFF)
-option(build_search    "Build external search tools (doxysearch and doxyindexer)" OFF)
-option(build_doc       "Build user manual" OFF)
-option(use_sqlite3     "Add support for sqlite3 output [experimental]." OFF)
-option(use_libclang    "Add support for libclang parsing." OFF)
-option(win_static      "Link with /MT in stead of /MD on windows" OFF)
-option(english_only    "Only compile in support for the English language" OFF)
-option(force_qt4       "Forces doxywizard to build using Qt4 even if Qt5 is installed" OFF)
+SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+OPTION(build_wizard    "Build the GUI frontend for doxygen." OFF)
+OPTION(build_app       "Example showing how to embed doxygen in an application." OFF)
+OPTION(build_parse     "Parses source code and dumps the dependencies between the code elements." OFF)
+OPTION(build_xmlparser "Example showing how to parse doxygen's XML output." OFF)
+OPTION(build_search    "Build external search tools (doxysearch and doxyindexer)" OFF)
+OPTION(build_doc       "Build user manual" OFF)
+OPTION(use_sqlite3     "Add support for sqlite3 output [experimental]." OFF)
+OPTION(use_libclang    "Add support for libclang parsing." OFF)
+OPTION(win_static      "Link with /MT in stead of /MD on windows" OFF)
+OPTION(english_only    "Only compile in support for the English language" OFF)
+OPTION(force_qt4       "Forces doxywizard to build using Qt4 even if Qt5 is installed" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(TOP "${CMAKE_SOURCE_DIR}")
@@ -111,20 +114,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${EXECUTABLE_OUTPUT_PATH})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${EXECUTABLE_OUTPUT_PATH})
 
 # gather lang codes for translation
-file(GLOB lang_files RELATIVE "${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/src/translator_??.h")
-if (english_only) # user only wants English
-  set(lcodes "ENONLY")
-else ()
-  set(lcodes "")
-  foreach (_lang ${lang_files})
-    string(REGEX REPLACE "translator_(.*).h" "\\1" _lang_code ${_lang})
-    string(TOUPPER ${_lang_code} lang_code)
-    list(APPEND lcodes "${lang_code}")
-  endforeach()
-endif()
-set(LANG_CODES ${lcodes} CACHE STRING "List of language codes for which translations should be compiled in")
+FILE(GLOB lang_files RELATIVE "${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/src/translator_??.h")
+IF(english_only) # user only wants English
+    SET(lcodes "ENONLY")
+ELSE()
+    SET(lcodes "")
+    FOREACH(_lang ${lang_files})
+        STRING(REGEX REPLACE "translator_(.*).h" "\\1" _lang_code ${_lang})
+        STRING(TOUPPER ${_lang_code} lang_code)
+        LIST(APPEND lcodes "${lang_code}")
+    ENDFOREACH()
+ENDIF()
+SET(LANG_CODES ${lcodes} CACHE STRING "List of language codes for which translations should be compiled in")
 
-if (win_static)
+if(win_static)
     set(CompilerFlags
         CMAKE_CXX_FLAGS
         CMAKE_CXX_FLAGS_DEBUG

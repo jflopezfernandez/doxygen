@@ -16,6 +16,26 @@
 #ifndef DOXYGEN_H
 #define DOXYGEN_H
 
+#if !defined(TRUE) && !defined(FALSE)
+#define TRUE  1
+#define FALSE 0
+#endif // TRUE/FALSE
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstddef>
+#include <cstdint>
+#include <cmath>
+#include <ctime>
+
+#include <filesystem>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <string_view>
+#include <vector>
+
 #include <qdatetime.h>
 #include <qcache.h>
 #include <qstrlist.h>

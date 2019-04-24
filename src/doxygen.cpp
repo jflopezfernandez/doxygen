@@ -14,8 +14,10 @@
  */
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
-#define _DEFAULT_SOURCE 1
+#define _DEFAULT_SOURCE TRUE
 #endif
+
+#include "doxygen.h"
 
 #include <locale.h>
 
@@ -118,13 +120,14 @@ extern void initResources();
 #endif
 
 // globally accessible variables
-ClassSDict      *Doxygen::classSDict = 0;
-ClassSDict      *Doxygen::hiddenClasses = 0;
-NamespaceSDict  *Doxygen::namespaceSDict = 0;
-MemberNameSDict *Doxygen::memberNameSDict = 0;
-MemberNameSDict *Doxygen::functionNameSDict = 0;
-FileNameList    *Doxygen::inputNameList = 0;       // all input files
-FileNameDict    *Doxygen::inputNameDict = 0;
+ClassSDict* Doxygen::classSDict = nullptr;
+ClassSDict* Doxygen::hiddenClasses = nullptr;
+NamespaceSDict* Doxygen::namespaceSDict = nullptr;
+MemberNameSDict* Doxygen::memberNameSDict = nullptr;
+MemberNameSDict* Doxygen::functionNameSDict = nullptr;
+FileNameList* Doxygen::inputNameList = nullptr;       // all input files
+FileNameDict* Doxygen::inputNameDict = nullptr;
+
 GroupSDict      *Doxygen::groupSDict = 0;
 FormulaList     *Doxygen::formulaList = 0;       // all formulas
 FormulaDict     *Doxygen::formulaDict = 0;       // all formulas
@@ -145,77 +148,77 @@ StringDict       Doxygen::namespaceAliasDict(257); // all namespace aliases
 StringDict       Doxygen::tagDestinationDict(257); // all tag locations
 QDict<void>      Doxygen::expandAsDefinedDict(257); // all macros that should be expanded
 QIntDict<MemberGroupInfo> Doxygen::memGrpInfoDict(1009); // dictionary of the member groups heading
-PageDef         *Doxygen::mainPage = 0;
-bool             Doxygen::insideMainPage = FALSE; // are we generating docs for the main page?
+PageDef* Doxygen::mainPage = nullptr;
+bool Doxygen::insideMainPage = false; // are we generating docs for the main page?
 NamespaceDef    *Doxygen::globalScope = 0;
 QDict<RefList>  *Doxygen::xrefLists = new QDict<RefList>; // dictionary of cross-referenced item lists
-bool             Doxygen::parseSourcesNeeded = FALSE;
+bool             Doxygen::parseSourcesNeeded = false;
 QTime            Doxygen::runningTime;
-SearchIndexIntf *Doxygen::searchIndex=0;
-QDict<DefinitionIntf> *Doxygen::symbolMap = 0;
-QDict<Definition> *Doxygen::clangUsrMap = 0;
-bool             Doxygen::outputToWizard=FALSE;
+SearchIndexIntf* Doxygen::searchIndex = nullptr;
+QDict<DefinitionIntf>* Doxygen::symbolMap = nullptr;
+QDict<Definition>* Doxygen::clangUsrMap = nullptr;
+bool             Doxygen::outputToWizard = false;
 QDict<int> *     Doxygen::htmlDirMap = 0;
 QCache<LookupInfo> *Doxygen::lookupCache;
 DirSDict        *Doxygen::directories;
 SDict<DirRelation> Doxygen::dirRelations(257);
 ParserManager   *Doxygen::parserManager = 0;
 QCString Doxygen::htmlFileExtension;
-bool             Doxygen::suppressDocWarnings = FALSE;
+bool             Doxygen::suppressDocWarnings = false;
 //Store           *Doxygen::symbolStorage;
 QCString         Doxygen::objDBFileName;
 QCString         Doxygen::entryDBFileName;
 QCString         Doxygen::filterDBFileName;
-bool             Doxygen::gatherDefines = TRUE;
+bool             Doxygen::gatherDefines = true;
 IndexList       *Doxygen::indexList;
 int              Doxygen::subpageNestingLevel = 0;
-bool             Doxygen::userComments = FALSE;
+bool             Doxygen::userComments = false;
 QCString         Doxygen::spaces;
-bool             Doxygen::generatingXmlOutput = FALSE;
-bool             Doxygen::markdownSupport = TRUE;
+bool             Doxygen::generatingXmlOutput = false;
+bool             Doxygen::markdownSupport = true;
 GenericsSDict   *Doxygen::genericsDict;
 
 // locally accessible globals
-static QDict<Entry>     g_classEntries(1009);
-static StringList       g_inputFiles;
-static QDict<void>      g_compoundKeywordDict(7);  // keywords recognised as compounds
-static OutputList      *g_outputList = 0;          // list of output generating objects
-static QDict<FileDef>   g_usingDeclarations(1009); // used classes
-static bool             g_successfulRun = FALSE;
-static bool             g_dumpSymbolMap = FALSE;
-static bool             g_useOutputTemplate = FALSE;
+static QDict<Entry> g_classEntries(1009);
+static StringList g_inputFiles;
+static QDict<void> g_compoundKeywordDict(7);  // keywords recognised as compounds
+static OutputList* g_outputList = nullptr;          // list of output generating objects
+static QDict<FileDef> g_usingDeclarations(1009); // used classes
+static bool g_successfulRun = false;
+static bool g_dumpSymbolMap = false;
+static bool g_useOutputTemplate = false;
 
 void clearAll()
 {
-  g_inputFiles.clear();
-  //g_excludeNameDict.clear();
-  //delete g_outputList; g_outputList=0;
+    g_inputFiles.clear();
+    //g_excludeNameDict.clear();
+    //delete g_outputList; g_outputList=0;
 
-  Doxygen::classSDict->clear();
-  Doxygen::namespaceSDict->clear();
-  Doxygen::pageSDict->clear();
-  Doxygen::exampleSDict->clear();
-  Doxygen::inputNameList->clear();
-  Doxygen::formulaList->clear();
-  Doxygen::sectionDict->clear();
-  Doxygen::inputNameDict->clear();
-  Doxygen::includeNameDict->clear();
-  Doxygen::exampleNameDict->clear();
-  Doxygen::imageNameDict->clear();
-  Doxygen::dotFileNameDict->clear();
-  Doxygen::mscFileNameDict->clear();
-  Doxygen::diaFileNameDict->clear();
-  Doxygen::formulaDict->clear();
-  Doxygen::formulaNameDict->clear();
-  Doxygen::tagDestinationDict.clear();
-  delete Doxygen::citeDict;
-  delete Doxygen::mainPage; Doxygen::mainPage=0;
+    Doxygen::classSDict->clear();
+    Doxygen::namespaceSDict->clear();
+    Doxygen::pageSDict->clear();
+    Doxygen::exampleSDict->clear();
+    Doxygen::inputNameList->clear();
+    Doxygen::formulaList->clear();
+    Doxygen::sectionDict->clear();
+    Doxygen::inputNameDict->clear();
+    Doxygen::includeNameDict->clear();
+    Doxygen::exampleNameDict->clear();
+    Doxygen::imageNameDict->clear();
+    Doxygen::dotFileNameDict->clear();
+    Doxygen::mscFileNameDict->clear();
+    Doxygen::diaFileNameDict->clear();
+    Doxygen::formulaDict->clear();
+    Doxygen::formulaNameDict->clear();
+    Doxygen::tagDestinationDict.clear();
+    delete Doxygen::citeDict;
+    delete Doxygen::mainPage; Doxygen::mainPage=0;
 }
 
-class Statistics
-{
-  public:
+class Statistics {
+public:
     Statistics() { stats.setAutoDelete(TRUE); }
+    
     void begin(const char *name)
     {
       msg(name);
@@ -11613,78 +11616,82 @@ void parseInput()
 
 void generateOutput()
 {
-  /**************************************************************************
-   *            Initialize output generators                                *
-   **************************************************************************/
+    /**************************************************************************
+     *            Initialize output generators                                *
+     **************************************************************************/
 
-  /// add extra languages for which we can only produce syntax highlighted code
-  addCodeOnlyMappings();
+    /// add extra languages for which we can only produce syntax highlighted code
+    addCodeOnlyMappings();
 
-  //// dump all symbols
-  if (g_dumpSymbolMap)
-  {
-    dumpSymbolMap();
-    exit(0);
-  }
+    //// dump all symbols
+    if (g_dumpSymbolMap) {
+        dumpSymbolMap();
+        std::exit(EXIT_FAILURE);
+    }
 
-  initSearchIndexer();
+    initSearchIndexer();
 
-  bool generateHtml  = Config_getBool(GENERATE_HTML);
-  bool generateLatex = Config_getBool(GENERATE_LATEX);
-  bool generateMan   = Config_getBool(GENERATE_MAN);
-  bool generateRtf   = Config_getBool(GENERATE_RTF);
-  bool generateDocbook = Config_getBool(GENERATE_DOCBOOK);
+    bool generateHtml    = Config_getBool(GENERATE_HTML);
+    bool generateLatex   = Config_getBool(GENERATE_LATEX);
+    bool generateMan     = Config_getBool(GENERATE_MAN);
+    bool generateRtf     = Config_getBool(GENERATE_RTF);
+    bool generateDocbook = Config_getBool(GENERATE_DOCBOOK);
 
+    g_outputList = new OutputList(TRUE);
+    
+    if (generateHtml) {
+        g_outputList->add(new HtmlGenerator);
+        HtmlGenerator::init();
 
-  g_outputList = new OutputList(TRUE);
-  if (generateHtml)
-  {
-    g_outputList->add(new HtmlGenerator);
-    HtmlGenerator::init();
+        // add HTML indexers that are enabled
+        bool generateHtmlHelp    = Config_getBool(GENERATE_HTMLHELP);
+        bool generateEclipseHelp = Config_getBool(GENERATE_ECLIPSEHELP);
+        bool generateQhp         = Config_getBool(GENERATE_QHP);
+        bool generateTreeView    = Config_getBool(GENERATE_TREEVIEW);
+        bool generateDocSet      = Config_getBool(GENERATE_DOCSET);
+        
+        if (generateEclipseHelp) Doxygen::indexList->addIndex(new EclipseHelp);
+        if (generateHtmlHelp)    Doxygen::indexList->addIndex(new HtmlHelp);
+        if (generateQhp)         Doxygen::indexList->addIndex(new Qhp);
+        if (generateTreeView)    Doxygen::indexList->addIndex(new FTVHelp(TRUE));
+        if (generateDocSet)      Doxygen::indexList->addIndex(new DocSets);
+        
+        Doxygen::indexList->initialize();
+        HtmlGenerator::writeTabData();
+    }
 
-    // add HTML indexers that are enabled
-    bool generateHtmlHelp    = Config_getBool(GENERATE_HTMLHELP);
-    bool generateEclipseHelp = Config_getBool(GENERATE_ECLIPSEHELP);
-    bool generateQhp         = Config_getBool(GENERATE_QHP);
-    bool generateTreeView    = Config_getBool(GENERATE_TREEVIEW);
-    bool generateDocSet      = Config_getBool(GENERATE_DOCSET);
-    if (generateEclipseHelp) Doxygen::indexList->addIndex(new EclipseHelp);
-    if (generateHtmlHelp)    Doxygen::indexList->addIndex(new HtmlHelp);
-    if (generateQhp)         Doxygen::indexList->addIndex(new Qhp);
-    if (generateTreeView)    Doxygen::indexList->addIndex(new FTVHelp(TRUE));
-    if (generateDocSet)      Doxygen::indexList->addIndex(new DocSets);
-    Doxygen::indexList->initialize();
-    HtmlGenerator::writeTabData();
-  }
-  if (generateLatex)
-  {
-    g_outputList->add(new LatexGenerator);
-    LatexGenerator::init();
-  }
-  if (generateDocbook)
-  {
-    g_outputList->add(new DocbookGenerator);
-    DocbookGenerator::init();
-  }
-  if (generateMan)
-  {
-    g_outputList->add(new ManGenerator);
-    ManGenerator::init();
-  }
-  if (generateRtf)
-  {
-    g_outputList->add(new RTFGenerator);
-    RTFGenerator::init();
-  }
-  if (Config_getBool(USE_HTAGS))
-  {
-    Htags::useHtags = TRUE;
-    QCString htmldir = Config_getString(HTML_OUTPUT);
-    if (!Htags::execute(htmldir))
-       err("USE_HTAGS is YES but htags(1) failed. \n");
-    if (!Htags::loadFilemap(htmldir))
-       err("htags(1) ended normally but failed to load the filemap. \n");
-  }
+    if (generateLatex) {
+        g_outputList->add(new LatexGenerator);
+        LatexGenerator::init();
+    }
+
+    if (generateDocbook) {
+        g_outputList->add(new DocbookGenerator);
+        DocbookGenerator::init();
+    }
+
+    if (generateMan) {
+        g_outputList->add(new ManGenerator);
+        ManGenerator::init();
+    }
+
+    if (generateRtf) {
+        g_outputList->add(new RTFGenerator);
+        RTFGenerator::init();
+    }
+
+    if (Config_getBool(USE_HTAGS)) {
+        Htags::useHtags = TRUE;
+        QCString htmldir = Config_getString(HTML_OUTPUT);
+        
+        if (!Htags::execute(htmldir)) {
+            err("USE_HTAGS is YES but htags(1) failed. \n");
+        }
+        
+        if (!Htags::loadFilemap(htmldir)) {
+            err("htags(1) ended normally but failed to load the filemap. \n");
+        }
+    }
 
   /**************************************************************************
    *                        Generate documentation                          *
