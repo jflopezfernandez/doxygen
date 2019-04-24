@@ -416,7 +416,11 @@ bool setTranslator(const char *langName)
     return FALSE;
   }
 
-  QCString msg = theTranslator->updateNeededMessage();
-  if (!msg.isEmpty()) warn_uncond(msg);
-  return TRUE;
+    QCString msg = theTranslator->updateNeededMessage();
+  
+    if (!msg.isEmpty()) {
+        warn_uncond(msg);
+    }
+
+    return TRUE;
 }
